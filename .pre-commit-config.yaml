@@ -6,7 +6,7 @@ repos:
       entry: hooks/license-checker.py
       language: script
       pass_filenames: false
-      args: [--license-file-path=./hooks/license.txt]
+      args: [--license-file-path=./hooks/license.txt, --ignore-file-regex=^\S*/__init__\.py$]]
     - id: format
       name: format
       language: system
