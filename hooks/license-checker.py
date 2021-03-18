@@ -45,6 +45,7 @@ def cmd_output(*cmd: str, retcode: Optional[int] = 0, **kwargs: Any) -> str:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="license-checker")
     parser.add_argument("--license-file-path", type=str, default="./LICENSE")
+    parser.add_argument("--ignore-file-regex", type=str, default="")
     parsed = parser.parse_args()
 
     content = []
@@ -53,12 +54,18 @@ if __name__ == "__main__":
         for line in f:
             pattern += r"^.*" + line.strip() + r".*$\n"
 
+    ignore_pattern = None
+    if parsed.ignore_file_regex:
+        ignore_pattern = re.compile(parsed.ignore_file_regex)
+
     filenames = added_files()
     for filename in filenames:
+        if parsed.ignore_file_regex and ignore_pattern.match(filename):
+            continue
         if filename.endswith(".py") or filename.endswith(".ipynb"):
             with open(filename) as fp:
                 content = fp.read()
                 if not re.search(pattern, content, re.MULTILINE):
                     raise RuntimeError(
-                        f'File "{filename}" does not contain correct license clauses!'
+                        f'File "{filename}" does not contain correct license clauses!',
                     )
